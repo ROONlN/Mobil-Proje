@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "TeknoCast",
+    "slug": "teknocast-g231210046",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.g231210046.teknocast"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#152451"
+      },
+      "package": "com.g231210046.teknocast"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
