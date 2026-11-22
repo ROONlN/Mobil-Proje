@@ -50,6 +50,7 @@ export function SavedScreen() {
           <PodcastCard
             onPress={() => navigation.navigate('Detay', { podcast: item })}
             podcast={item}
+            saved
           />
         )}
         showsVerticalScrollIndicator={false}

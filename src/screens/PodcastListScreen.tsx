@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PodcastCard } from '../components/PodcastCard';
 import { colors } from '../constants/theme';
+import { useFavorites } from '../context/FavoritesContext';
 import { Podcast, RootStackParamList, SortOrder } from '../types';
 
 const API_URL = 'https://itunes.apple.com/search?limit=25&term=technology&entity=podcast';
@@ -25,6 +26,7 @@ type Navigation = NativeStackNavigationProp<RootStackParamList>;
 
 export function PodcastListScreen() {
   const navigation = useNavigation<Navigation>();
+  const { isFavorite } = useFavorites();
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [search, setSearch] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('Tümü');
@@ -177,6 +179,7 @@ export function PodcastListScreen() {
           <PodcastCard
             onPress={() => navigation.navigate('Detay', { podcast: item })}
             podcast={item}
+            saved={isFavorite(item.collectionId)}
           />
         )}
         showsVerticalScrollIndicator={false}

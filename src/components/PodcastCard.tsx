@@ -7,17 +7,25 @@ import { Podcast } from '../types';
 type Props = {
   podcast: Podcast;
   onPress: () => void;
+  saved?: boolean;
 };
 
-export function PodcastCard({ podcast, onPress }: Props) {
+export function PodcastCard({ podcast, onPress, saved = false }: Props) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${podcast.collectionName} ayrıntılarını aç`}
+      accessibilityLabel={`${podcast.collectionName} ayrıntılarını aç${saved ? ', kaydedildi' : ''}`}
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
-      <Image source={{ uri: podcast.artworkUrl100 }} style={styles.artwork} />
+      <View style={styles.artworkWrap}>
+        <Image source={{ uri: podcast.artworkUrl100 }} style={styles.artwork} />
+        {saved && (
+          <View style={styles.savedBadge}>
+            <Ionicons color="#FFFFFF" name="bookmark" size={13} />
+          </View>
+        )}
+      </View>
       <View style={styles.content}>
         <Text numberOfLines={2} style={styles.title}>
           {podcast.collectionName}
@@ -56,7 +64,21 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   pressed: { opacity: 0.72, transform: [{ scale: 0.99 }] },
+  artworkWrap: { position: 'relative' },
   artwork: { borderRadius: 15, height: 82, width: 82, backgroundColor: colors.chip },
+  savedBadge: {
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    borderColor: colors.surface,
+    borderRadius: 13,
+    borderWidth: 2,
+    bottom: -4,
+    height: 26,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: -4,
+    width: 26,
+  },
   content: { flex: 1, marginHorizontal: 13 },
   title: { color: colors.text, fontSize: 16, fontWeight: '800', lineHeight: 21 },
   artist: { color: colors.muted, fontSize: 13, marginTop: 4 },
