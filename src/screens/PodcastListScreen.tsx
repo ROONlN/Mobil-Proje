@@ -4,8 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -24,6 +26,13 @@ const API_URL = 'https://itunes.apple.com/search?limit=25&term=technology&entity
 type ApiResponse = { resultCount: number; results: Podcast[] };
 type Navigation = NativeStackNavigationProp<RootStackParamList>;
 
+async function loadPodcasts(): Promise<Podcast[]> {
+  const response = await fetch(API_URL);
+  if (!response.ok) throw new Error(`Sunucu hatası: ${response.status}`);
+  const data = (await response.json()) as ApiResponse;
+  return data.results.filter((item) => item.collectionId && item.collectionName);
+}
+
 export function PodcastListScreen() {
   const navigation = useNavigation<Navigation>();
   const { isFavorite } = useFavorites();
@@ -33,21 +42,35 @@ export function PodcastListScreen() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchPodcasts = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error(`Sunucu hatası: ${response.status}`);
-      const data = (await response.json()) as ApiResponse;
-      setPodcasts(data.results.filter((item) => item.collectionId && item.collectionName));
+      setPodcasts(await loadPodcasts());
     } catch (requestError) {
       console.warn(requestError);
       setError('Podcast’ler yüklenemedi. İnternet bağlantınızı kontrol edin.');
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const refreshPodcasts = useCallback(async () => {
+    setRefreshing(true);
+
+    try {
+      setPodcasts(await loadPodcasts());
+    } catch (requestError) {
+      console.warn(requestError);
+      Alert.alert(
+        'Yenileme başarısız',
+        'Mevcut podcast listesi korunuyor. İnternet bağlantınızı kontrol edip tekrar deneyin.',
+      );
+    } finally {
+      setRefreshing(false);
     }
   }, []);
 
@@ -182,6 +205,14 @@ export function PodcastListScreen() {
             saved={isFavorite(item.collectionId)}
           />
         )}
+        refreshControl={
+          <RefreshControl
+            colors={[colors.primary]}
+            onRefresh={() => void refreshPodcasts()}
+            refreshing={refreshing}
+            tintColor={colors.primary}
+          />
+        }
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
