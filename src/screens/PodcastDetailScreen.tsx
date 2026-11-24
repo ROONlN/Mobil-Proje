@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Alert, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Linking, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from '../constants/theme';
@@ -29,6 +29,19 @@ export function PodcastDetailScreen({ route }: Props) {
     }
   }
 
+  async function sharePodcast() {
+    const message = [
+      `${podcast.collectionName} - ${podcast.artistName}`,
+      podcast.collectionViewUrl ?? 'Apple Podcasts bağlantısı bulunamadı.',
+    ].join('\n');
+
+    try {
+      await Share.share({ message, title: podcast.collectionName });
+    } catch {
+      Alert.alert('Paylaşım açılamadı', 'Podcast paylaşım menüsü şu anda açılamıyor.');
+    }
+  }
+
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -51,6 +64,14 @@ export function PodcastDetailScreen({ route }: Props) {
             <Text style={[styles.actionText, saved && styles.savedText]}>
               {saved ? 'Kaydedilenlerden çıkar' : 'Kaydet'}
             </Text>
+          </Pressable>
+          <Pressable
+            accessibilityLabel="Podcast'i paylaş"
+            onPress={() => void sharePodcast()}
+            style={[styles.actionButton, styles.shareButton]}
+          >
+            <Ionicons color={colors.primary} name="share-social-outline" size={20} />
+            <Text style={styles.actionText}>Paylaş</Text>
           </Pressable>
         </View>
 
@@ -100,8 +121,9 @@ const styles = StyleSheet.create({
   genreText: { color: '#FFFFFF', fontSize: 12, fontWeight: '800' },
   title: { color: colors.text, fontSize: 25, fontWeight: '900', lineHeight: 31, marginTop: 20, textAlign: 'center' },
   artist: { color: colors.muted, fontSize: 15, marginTop: 7, textAlign: 'center' },
-  actions: { marginTop: 19 },
-  actionButton: { alignItems: 'center', backgroundColor: colors.chip, borderColor: colors.primary, borderRadius: 15, borderWidth: 1, flexDirection: 'row', gap: 8, justifyContent: 'center', paddingVertical: 13 },
+  actions: { flexDirection: 'row', gap: 10, marginTop: 19 },
+  actionButton: { alignItems: 'center', backgroundColor: colors.chip, borderColor: colors.primary, borderRadius: 15, borderWidth: 1, flex: 1, flexDirection: 'row', gap: 8, justifyContent: 'center', minHeight: 52, paddingHorizontal: 10, paddingVertical: 10 },
+  shareButton: { backgroundColor: colors.surface },
   savedButton: { backgroundColor: colors.primary },
   actionText: { color: colors.primary, fontSize: 14, fontWeight: '800' },
   savedText: { color: '#FFFFFF' },
